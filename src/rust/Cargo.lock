@@ -11,6 +11,7 @@ checksum = "e78d4f1cc4ae33bbfc157ed5d5a5ef3bc29227303d595861deb238fcec4e9457"
 [[package]]
 name = "extendr-api"
 version = "0.2.0"
+source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#74052d267d41fae381fb6b76155d751e4e1158c0"
 dependencies = [
  "extendr-engine",
  "extendr-macros",
@@ -22,6 +23,7 @@ dependencies = [
 [[package]]
 name = "extendr-engine"
 version = "0.2.0"
+source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#74052d267d41fae381fb6b76155d751e4e1158c0"
 dependencies = [
  "libR-sys",
 ]
@@ -29,6 +31,7 @@ dependencies = [
 [[package]]
 name = "extendr-macros"
 version = "0.2.0"
+source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#74052d267d41fae381fb6b76155d751e4e1158c0"
 dependencies = [
  "proc-macro2",
  "quote",

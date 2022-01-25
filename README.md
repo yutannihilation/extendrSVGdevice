@@ -7,7 +7,8 @@
 <!-- badges: end -->
 
 A Rust-implementation of [devout’s tutorial to create an SVG graphic
-device](https://coolbutuseless.github.io/package/devout/articles/creating-an-svg-device-01.html).
+device](https://coolbutuseless.github.io/package/devout/articles/creating-an-svg-device-01.html)
+using [extendr](https://github.com/extendr/rextendr/).
 
 ``` r
 library(extendrSVGdevice)
