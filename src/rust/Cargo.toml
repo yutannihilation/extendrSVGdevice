@@ -1,0 +1,17 @@
+[package]
+name = "extendrSVGdevice"
+version = "0.1.0"
+edition = "2021"
+# "captured identifiers in format strings" was introduced in version 1.58
+rust-version = "1.58"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+#extendr-api = { git = "https://github.com/yutannihilation/extendr", branch = "feature/create-graphic-device" }
+extendr-api = { path = "C:/Users/Yutani/Documents/GitHub/extendr/extendr-api" }
+itertools = "*"
+
+[patch.crates-io]
+libR-sys = { git = "https://github.com/extendr/libR-sys" }
