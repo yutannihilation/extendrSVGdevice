@@ -9,8 +9,7 @@ rust-version = "1.58"
 crate-type = ["staticlib"]
 
 [dependencies]
-#extendr-api = { git = "https://github.com/yutannihilation/extendr", branch = "feature/create-graphic-device" }
-extendr-api = { path = "C:/Users/Yutani/Documents/GitHub/extendr/extendr-api" }
+extendr-api = { git = "https://github.com/yutannihilation/extendr", branch = "feature/create-graphic-device" }
 itertools = "*"
 
 [patch.crates-io]
