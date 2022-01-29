@@ -116,13 +116,6 @@ impl DeviceDriver for SVGDevice {
         }
     }
 
-    fn text_width(&mut self, text: &str, _: R_GE_gcontext, _: DevDesc) -> f64 {
-        // rprintln!("[DEBUG] text_width: {text}");
-
-        // Wildly assume 1 font has 1pt of width
-        (text.len() as f64) * POINT
-    }
-
     fn char_metric(&mut self, c: char, _: R_GE_gcontext, _: DevDesc) -> TextMetric {
         // rprintln!("[DEBUG] char_metric: {c}");
 
