@@ -11,19 +11,20 @@ checksum = "e78d4f1cc4ae33bbfc157ed5d5a5ef3bc29227303d595861deb238fcec4e9457"
 [[package]]
 name = "extendr-api"
 version = "0.2.0"
-source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#74052d267d41fae381fb6b76155d751e4e1158c0"
+source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#1e87e086d2b6e1b76d77a8fe1b305a56154a882e"
 dependencies = [
  "extendr-engine",
  "extendr-macros",
  "lazy_static",
  "libR-sys",
+ "libc",
  "paste",
 ]
 
 [[package]]
 name = "extendr-engine"
 version = "0.2.0"
-source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#74052d267d41fae381fb6b76155d751e4e1158c0"
+source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#1e87e086d2b6e1b76d77a8fe1b305a56154a882e"
 dependencies = [
  "libR-sys",
 ]
@@ -31,7 +32,7 @@ dependencies = [
 [[package]]
 name = "extendr-macros"
 version = "0.2.0"
-source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#74052d267d41fae381fb6b76155d751e4e1158c0"
+source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#1e87e086d2b6e1b76d77a8fe1b305a56154a882e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -68,6 +69,12 @@ source = "git+https://github.com/extendr/libR-sys#355cf0de0dd7f28cfa3933a70b29de
 dependencies = [
  "winapi",
 ]
+
+[[package]]
+name = "libc"
+version = "0.2.116"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "565dbd88872dbe4cc8a46e527f26483c1d1f7afa6b884a3bd6cd893d4f98da74"
 
 [[package]]
 name = "paste"

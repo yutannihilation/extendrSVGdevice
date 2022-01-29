@@ -1,5 +1,5 @@
 use extendr_api::{
-    graphics::{DevDesc, DeviceDescriptor, DeviceDriver, R_GE_gcontext},
+    graphics::{ClippingStrategy, DevDesc, DeviceDescriptor, DeviceDriver, R_GE_gcontext},
     prelude::*,
 };
 use itertools::Itertools;
@@ -13,9 +13,11 @@ struct SVGDevice {
 }
 
 impl DeviceDriver for SVGDevice {
+    const CLIPPING_STRATEGY: ClippingStrategy = ClippingStrategy::Device;
+
     fn close(&mut self, _: DevDesc) {
         if let Err(e) = writeln!(self.svg_file, "</svg>") {
-            println!("Cannot write the end tag");
+            rprintln!("Cannot write the end tag: {e}");
         }
 
         if let Err(e) = self.svg_file.flush() {
@@ -23,31 +25,35 @@ impl DeviceDriver for SVGDevice {
         }
     }
 
-    fn circle(&mut self, x: f64, y: f64, r: f64, gc: R_GE_gcontext, _: DevDesc) {
+    fn circle(&mut self, center: (f64, f64), r: f64, gc: R_GE_gcontext, _: DevDesc) {
         // R!("browser()").unwrap();
 
         let stroke = i32_to_csscolor(gc.col);
         let fill = i32_to_csscolor(gc.fill);
+        let (cx, cy) = center;
 
         if let Err(e) = writeln!(
             self.svg_file,
-            r##"<circle cx="{x}" cy="{y}" r="{r}" stroke="{stroke}" fill="{fill}" />"##
+            r##"<circle cx="{cx:.3}" cy="{cy:.3}" r="{r:.3}" stroke="{stroke}" fill="{fill}" />"##
         ) {
             rprintln!("Cannot write a circle: {e}");
         }
     }
 
-    fn polyline(&mut self, x: &[f64], y: &[f64], gc: R_GE_gcontext, _: DevDesc) {
+    fn polyline<T: IntoIterator<Item = (f64, f64)>>(
+        &mut self,
+        coords: T,
+        gc: R_GE_gcontext,
+        _: DevDesc,
+    ) {
         // R!("browser()").unwrap();
 
         let stroke = i32_to_csscolor(gc.col);
 
-        let points = itertools::zip(x, y)
-            .map(|(&x, &y)| {
-                let x = x;
-                let y = y;
-                format!("{x},{y}")
-            })
+        let points = coords
+            .into_iter()
+            .map(|(x, y)| format!("{x:.3},{y:.3}"))
+            .collect::<Vec<String>>()
             .join(" ");
 
         if let Err(e) = writeln!(
@@ -58,14 +64,17 @@ impl DeviceDriver for SVGDevice {
         }
     }
 
-    fn line(&mut self, x1: f64, y1: f64, x2: f64, y2: f64, gc: R_GE_gcontext, _: DevDesc) {
+    fn line(&mut self, from: (f64, f64), to: (f64, f64), gc: R_GE_gcontext, _: DevDesc) {
         // R!("browser()").unwrap();
+
+        let (x1, y1) = from;
+        let (x2, y2) = to;
 
         let stroke = i32_to_csscolor(gc.col);
 
         if let Err(e) = writeln!(
             self.svg_file,
-            r##"<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{stroke}" fill="none" />"##
+            r##"<line x1="{x1:.3}" y1="{y1:.3}" x2="{x2:.3}" y2="{y2:.3}" stroke="{stroke}" fill="none" />"##
         ) {
             rprintln!("Cannot write a line: {e}");
         }
@@ -73,11 +82,10 @@ impl DeviceDriver for SVGDevice {
 
     fn text(
         &mut self,
-        x: f64,
-        y: f64,
-        str: &str,
-        rot: f64,
-        _hadj: f64,
+        pos: (f64, f64),
+        text: &str,
+        angle: f64,
+        hadj: f64,
         gc: R_GE_gcontext,
         _: DevDesc,
     ) {
@@ -85,21 +93,25 @@ impl DeviceDriver for SVGDevice {
 
         let fill = i32_to_csscolor(gc.col);
 
-        let rot = -rot;
+        let (x, y) = pos;
+        let rot = -angle;
 
         if let Err(e) = writeln!(
             self.svg_file,
-            r##"<text x="{x}" y="{y}" transform="rotate({rot}, {x}, {y})" fill="{fill}">{str}</text>"##
+            r##"<text x="{x:.3}" y="{y:.3}" transform="rotate({rot:.3}, {x:.3}, {y:.3})" fill="{fill}">{text}</text>"##
         ) {
             rprintln!("Cannot write a text: {e}");
         }
     }
 
-    fn rect(&mut self, x0: f64, y0: f64, x1: f64, y1: f64, gc: R_GE_gcontext, _: DevDesc) {
+    fn rect(&mut self, from: (f64, f64), to: (f64, f64), gc: R_GE_gcontext, _: DevDesc) {
         // R!("browser()").unwrap();
 
         let stroke = i32_to_csscolor(gc.col);
         let fill = i32_to_csscolor(gc.fill);
+
+        let (x0, y0) = from;
+        let (x1, y1) = to;
 
         let x = x0.min(x1);
         let y = y0.min(y1);
@@ -108,24 +120,27 @@ impl DeviceDriver for SVGDevice {
 
         if let Err(e) = writeln!(
             self.svg_file,
-            r##"<rect x="{x}" y="{y}" width="{width}" height="{height}" stroke="{stroke}" fill="{fill}" />"##
+            r##"<rect x="{x:.3}" y="{y:.3}" width="{width:.3}" height="{height:.3}" stroke="{stroke}" fill="{fill}" />"##
         ) {
             rprintln!("Cannot write a rect: {e}");
         }
     }
 
-    fn polygon(&mut self, x: &[f64], y: &[f64], gc: R_GE_gcontext, _: DevDesc) {
+    fn polygon<T: IntoIterator<Item = (f64, f64)>>(
+        &mut self,
+        coords: T,
+        gc: R_GE_gcontext,
+        _: DevDesc,
+    ) {
         // R!("browser()").unwrap();
 
         let stroke = i32_to_csscolor(gc.col);
         let fill = i32_to_csscolor(gc.fill);
 
-        let points = itertools::zip(x, y)
-            .map(|(&x, &y)| {
-                let x = x;
-                let y = y;
-                format!("{x},{y}")
-            })
+        let points = coords
+            .into_iter()
+            .map(|(x, y)| format!("{x:.3},{y:.3}"))
+            .collect::<Vec<String>>()
             .join(" ");
 
         if let Err(e) = writeln!(
@@ -136,11 +151,9 @@ impl DeviceDriver for SVGDevice {
         }
     }
 
-    fn path(
+    fn path<T: IntoIterator<Item = impl IntoIterator<Item = (f64, f64)>>>(
         &mut self,
-        x: &[f64],
-        y: &[f64],
-        nper: &[i32],
+        coords: T,
         winding: bool,
         gc: R_GE_gcontext,
         _: DevDesc,
@@ -152,24 +165,18 @@ impl DeviceDriver for SVGDevice {
         let fill = i32_to_csscolor(gc.fill);
         let fill_rule = if winding { "nonzero" } else { "evenodd" };
 
-        let mut i = itertools::zip(x, y);
-        let mut points = String::new();
-
-        for &n in nper {
-            let mut i_part = i.by_ref().take(n as _);
-            let (&first_point_x, &first_point_y) = i_part.next().expect("The length doesn't match");
-            let first_point = format!("M {first_point_x} {first_point_y}");
-
-            let other_points = i_part
-                .map(|(&x, &y)| {
-                    let x = x;
-                    let y = y;
-                    format!("L {x} {y}")
-                })
-                .join(" ");
-
-            points.push_str(format!("{first_point} {other_points} Z").as_str());
-        }
+        let points = coords
+            .into_iter()
+            .map(|subpath| {
+                let xy = subpath
+                    .into_iter()
+                    .map(|(x, y)| format!("L {x:.3} {y:.3}"))
+                    .collect::<Vec<String>>()
+                    .join(" ");
+                format!("M {xy} Z")
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
 
         if let Err(e) = writeln!(
             self.svg_file,
