@@ -4,7 +4,6 @@ use extendr_api::{
     },
     prelude::*,
 };
-use itertools::Itertools;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
@@ -30,8 +29,6 @@ impl DeviceDriver for SVGDevice {
     }
 
     fn circle(&mut self, center: (f64, f64), r: f64, gc: R_GE_gcontext, _: DevDesc) {
-        // R!("browser()").unwrap();
-
         let stroke = i32_to_csscolor(gc.col);
         let fill = i32_to_csscolor(gc.fill);
         let (cx, cy) = center;
@@ -50,8 +47,6 @@ impl DeviceDriver for SVGDevice {
         gc: R_GE_gcontext,
         _: DevDesc,
     ) {
-        // R!("browser()").unwrap();
-
         let stroke = i32_to_csscolor(gc.col);
 
         let points = coords
@@ -69,8 +64,6 @@ impl DeviceDriver for SVGDevice {
     }
 
     fn line(&mut self, from: (f64, f64), to: (f64, f64), gc: R_GE_gcontext, _: DevDesc) {
-        // R!("browser()").unwrap();
-
         let (x1, y1) = from;
         let (x2, y2) = to;
 
@@ -93,9 +86,6 @@ impl DeviceDriver for SVGDevice {
         gc: R_GE_gcontext,
         _: DevDesc,
     ) {
-        // R!("browser()").unwrap();
-        // rprintln!("[DEBUG] text: {text}, angle={angle}, hadj={hadj}");
-
         let fill = i32_to_csscolor(gc.col);
 
         // TODO: I have no idea how to handle this continuously.
@@ -116,10 +106,10 @@ impl DeviceDriver for SVGDevice {
         }
     }
 
+    // Wildly assumes 1 font has 1pt of width, and 10% of horizontal margins on
+    // top and bottom. This should be properly done by querying to a font
+    // database (e.g. https://github.com/RazrFalcon/fontdb).
     fn char_metric(&mut self, c: char, _: R_GE_gcontext, _: DevDesc) -> TextMetric {
-        // rprintln!("[DEBUG] char_metric: {c}");
-
-        // Wildly assume 1 font has 1pt of width, and 10% of horizontal margins on top and bottom.
         TextMetric {
             ascent: 1.1 * POINT,
             descent: 0.1 * POINT,
@@ -128,8 +118,6 @@ impl DeviceDriver for SVGDevice {
     }
 
     fn rect(&mut self, from: (f64, f64), to: (f64, f64), gc: R_GE_gcontext, _: DevDesc) {
-        // R!("browser()").unwrap();
-
         let stroke = i32_to_csscolor(gc.col);
         let fill = i32_to_csscolor(gc.fill);
 
@@ -155,8 +143,6 @@ impl DeviceDriver for SVGDevice {
         gc: R_GE_gcontext,
         _: DevDesc,
     ) {
-        // R!("browser()").unwrap();
-
         let stroke = i32_to_csscolor(gc.col);
         let fill = i32_to_csscolor(gc.fill);
 
@@ -181,10 +167,21 @@ impl DeviceDriver for SVGDevice {
         gc: R_GE_gcontext,
         _: DevDesc,
     ) {
-        // R!("browser()").unwrap();
-
         let stroke = i32_to_csscolor(gc.col);
+
+        // `?par` says:
+        //
+        // > The ‘units’ here are (on most devices) proportional to lwd, and
+        // > with lwd = 1 are in pixels or points or 1/96 inch.
+        //
+        // Here, a "pixel" is usually 1/96 inch, but a "point" is 1/72 inch...?
+        // What values should we choose? It seems it's device-specific, so let's
+        // choose the same value as the Cairo device[^1].
+        //
+        // [1^]:
+        //     https://github.com/wch/r-source/blob/6b22b60126646714e0f25143ac679240be251dbe/src/library/grDevices/src/cairo/cairoBM.c#L542
         let stroke_width = gc.lwd / 96.0;
+
         let fill = i32_to_csscolor(gc.fill);
         let fill_rule = if winding { "nonzero" } else { "evenodd" };
 
@@ -216,6 +213,10 @@ impl DeviceDriver for SVGDevice {
 //
 // https://github.com/wch/r-source/blob/8ebcb33a9f70e729109b1adf60edd5a3b22d3c6f/src/include/R_ext/GraphicsDevice.h#L766-L796
 fn i32_to_csscolor(x: i32) -> String {
+    if x.is_na() {
+        return "transparent".to_string();
+    }
+
     let x: u32 = unsafe { std::mem::transmute(x) };
 
     let r = x & 255;
