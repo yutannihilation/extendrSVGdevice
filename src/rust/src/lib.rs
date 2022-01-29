@@ -1,5 +1,7 @@
 use extendr_api::{
-    graphics::{ClippingStrategy, DevDesc, DeviceDescriptor, DeviceDriver, R_GE_gcontext},
+    graphics::{
+        ClippingStrategy, DevDesc, DeviceDescriptor, DeviceDriver, R_GE_gcontext, TextMetric,
+    },
     prelude::*,
 };
 use itertools::Itertools;
@@ -11,6 +13,8 @@ struct SVGDevice {
     // Not sure if BufWriter really contributes a better performance in actual.
     svg_file: BufWriter<File>,
 }
+
+const POINT: f64 = 12.0;
 
 impl DeviceDriver for SVGDevice {
     const CLIPPING_STRATEGY: ClippingStrategy = ClippingStrategy::Device;
@@ -90,17 +94,43 @@ impl DeviceDriver for SVGDevice {
         _: DevDesc,
     ) {
         // R!("browser()").unwrap();
+        // rprintln!("[DEBUG] text: {text}, angle={angle}, hadj={hadj}");
 
         let fill = i32_to_csscolor(gc.col);
+
+        // TODO: I have no idea how to handle this continuously.
+        let text_anchor = match hadj {
+            x if x < 0.49 => "start",
+            x if x > 0.51 => "end",
+            _ => "middle",
+        };
 
         let (x, y) = pos;
         let rot = -angle;
 
         if let Err(e) = writeln!(
             self.svg_file,
-            r##"<text x="{x:.3}" y="{y:.3}" transform="rotate({rot:.3}, {x:.3}, {y:.3})" fill="{fill}">{text}</text>"##
+            r##"<text x="{x:.3}" y="{y:.3}" text-anchor="{text_anchor}" transform="rotate({rot:.3}, {x:.3}, {y:.3})" fill="{fill}">{text}</text>"##
         ) {
             rprintln!("Cannot write a text: {e}");
+        }
+    }
+
+    fn text_width(&mut self, text: &str, _: R_GE_gcontext, _: DevDesc) -> f64 {
+        // rprintln!("[DEBUG] text_width: {text}");
+
+        // Wildly assume 1 font has 1pt of width
+        (text.len() as f64) * POINT
+    }
+
+    fn char_metric(&mut self, c: char, _: R_GE_gcontext, _: DevDesc) -> TextMetric {
+        // rprintln!("[DEBUG] char_metric: {c}");
+
+        // Wildly assume 1 font has 1pt of width, and 10% of horizontal margins on top and bottom.
+        TextMetric {
+            ascent: 1.1 * POINT,
+            descent: 0.1 * POINT,
+            width: POINT,
         }
     }
 
