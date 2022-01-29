@@ -17,6 +17,7 @@ library(ggplot2)
 file <- knitr::fig_path('.svg')
 extendr_svg(file, 10, 10)
 
+set.seed(10)
 dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
 ggplot(dsamp, aes(carat, price)) +
   geom_point(aes(colour = clarity))
