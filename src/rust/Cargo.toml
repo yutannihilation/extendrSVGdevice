@@ -9,7 +9,7 @@ rust-version = "1.58"
 crate-type = ["staticlib"]
 
 [dependencies]
-extendr-api = { git = "https://github.com/yutannihilation/extendr", branch = "feature/create-graphic-device" }
+extendr-api = { git = "https://github.com/extendr/extendr" }
 
 [patch.crates-io]
 libR-sys = { git = "https://github.com/extendr/libR-sys" }

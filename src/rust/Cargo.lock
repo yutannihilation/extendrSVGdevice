@@ -5,7 +5,7 @@ version = 3
 [[package]]
 name = "extendr-api"
 version = "0.2.0"
-source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#1e87e086d2b6e1b76d77a8fe1b305a56154a882e"
+source = "git+https://github.com/extendr/extendr#7a2eed990101c36304b0e78d70bd455061c66e59"
 dependencies = [
  "extendr-engine",
  "extendr-macros",
@@ -18,7 +18,7 @@ dependencies = [
 [[package]]
 name = "extendr-engine"
 version = "0.2.0"
-source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#1e87e086d2b6e1b76d77a8fe1b305a56154a882e"
+source = "git+https://github.com/extendr/extendr#7a2eed990101c36304b0e78d70bd455061c66e59"
 dependencies = [
  "libR-sys",
 ]
@@ -26,7 +26,7 @@ dependencies = [
 [[package]]
 name = "extendr-macros"
 version = "0.2.0"
-source = "git+https://github.com/yutannihilation/extendr?branch=feature/create-graphic-device#1e87e086d2b6e1b76d77a8fe1b305a56154a882e"
+source = "git+https://github.com/extendr/extendr#7a2eed990101c36304b0e78d70bd455061c66e59"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -56,9 +56,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.116"
+version = "0.2.117"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "565dbd88872dbe4cc8a46e527f26483c1d1f7afa6b884a3bd6cd893d4f98da74"
+checksum = "e74d72e0f9b65b5b4ca49a346af3976df0f9c61d550727f349ecd559f251a26c"
 
 [[package]]
 name = "paste"
